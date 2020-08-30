@@ -1,11 +1,8 @@
 /****************************************************************************
-              config.h
-
-    Tu May 22 21:23:51 2020
-    Copyright  2020  Dirk Brosswick
- *  Email: dirk.brosswick@googlemail.com
+ *   Copyright  2020  Jakub Vesely
+ *   Email: jakub_vesely@seznam.cz
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,18 +18,35 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef _CONFIG_H 
-    #define _CONFIG_H 
 
-    #define LILYGO_WATCH_2020_V1             //To use T-Watch2020, please uncomment this line
-    #define LILYGO_WATCH_LVGL                   //To use LVGL, you need to enable the macro LVGL
-    #define LILYGO_WATCH_HAS_PCF8563         //To be possible to use RTC
-    #define TWATCH_USE_PSRAM_ALLOC_LVGL
-    #include <LilyGoWatch.h>
+#include "rtc.h"
+#include <stdbool.h>
+#include <hardware/powermgm.h>
 
-    /*
-    * firmeware version string
-    */
-    #define __FIRMWARE__            "2020082902"
+static TTGOClass *s_ttgo = NULL;
 
-#endif // _CONFIG_H
+void rtc_setup(TTGOClass *ttgo){
+    s_ttgo = ttgo;
+    pinMode(RTC_INT, INPUT_PULLUP);
+    attachInterrupt(RTC_INT, [] {
+       powermgm_set_event(POWERMGM_RTC_ALARM);
+       //detachInterrupt(RTC_INT);
+    }, FALLING);
+}
+
+void rtc_set_alarm(uint8_t hour, uint8_t minute){
+    s_ttgo->rtc->setAlarm(hour, minute,PCF8563_NO_ALARM, PCF8563_NO_ALARM);
+}
+
+void rtc_enable_alarm(){
+    s_ttgo->rtc->enableAlarm();
+}
+
+void rtc_disable_alarm(){
+    s_ttgo->rtc->disableAlarm();
+}
+
+bool rtc_is_time(uint8_t hour, uint8_t minute){
+    RTC_Date date_time = s_ttgo->rtc->getDateTime();
+    return hour == date_time.hour && minute == date_time.minute;
+}

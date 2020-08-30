@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@
     #define POWERMGM_PMU_BUTTON                 _BV(6)
     #define POWERMGM_BMA_DOUBLECLICK            _BV(9)
     #define POWERMGM_BMA_TILT                   _BV(10)
+    #define POWERMGM_RTC_ALARM                  _BV(11)
+
 
     /*
      * @brief setp power managment, coordinate managment beween CPU, wifictl, pmu, bma, display, backlight and lvgl
@@ -44,19 +46,19 @@
     void powermgm_loop( void );
     /*
      * @brief trigger a power managemt event
-     * 
+     *
      * @param   bits    event to trigger, example: POWERMGM_WIFI_ON_REQUEST for switch an WiFi
      */
     void powermgm_set_event( EventBits_t bits );
     /*
      * @brief clear a power managemt event
-     * 
+     *
      * @param   bits    event to trigger, example: POWERMGM_WIFI_ON_REQUEST for switch an WiFi
      */
     void powermgm_clear_event( EventBits_t bits );
     /*
      * @brief get a power managemt event state
-     * 
+     *
      * @param   bits    event state, example: POWERMGM_STANDBY to evaluate if the system in standby
      * 
      * @return  EventBits_t    event state

@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,9 +36,12 @@
 #include "motor.h"
 #include "touch.h"
 #include "display.h"
+#include "app/alarm_clock/alarm.h"
 
 #include "gui/mainbar/mainbar.h"
+#include "gui/mainbar/main_tile/main_tile.h"
 
+static bool alarm_in_progress = false;
 EventGroupHandle_t powermgm_status = NULL;
 portMUX_TYPE powermgmMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -57,12 +60,24 @@ void powermgm_setup( void ) {
     touch_setup();
 }
 
+void stop_alarm(){
+    main_tile_alarm_stop();
+    alarm_in_progress = false;
+}
 /*
  *
  */
 void powermgm_loop( void ) {
 
     TTGOClass *ttgo = TTGOClass::getWatch();
+    //process alarm wakeup
+    if (powermgm_get_event(POWERMGM_RTC_ALARM) && (powermgm_get_event( POWERMGM_STANDBY ) || powermgm_get_event( POWERMGM_SILENCE_WAKEUP ))){
+        powermgm_set_event( POWERMGM_WAKEUP_REQUEST );
+    }
+
+    if (alarm_in_progress && (!alarm_is_time() || !alarm_is_enabled())){
+        stop_alarm();
+    }
 
     // check if a button or doubleclick was release
     if( powermgm_get_event( POWERMGM_PMU_BUTTON | POWERMGM_BMA_DOUBLECLICK | POWERMGM_BMA_TILT ) ) {
@@ -72,6 +87,9 @@ void powermgm_loop( void ) {
         else {
             if ( powermgm_get_event( POWERMGM_PMU_BUTTON | POWERMGM_BMA_DOUBLECLICK ) ) {
                 powermgm_set_event( POWERMGM_STANDBY_REQUEST );
+            if (alarm_in_progress) {
+                stop_alarm();
+            }
             }
         }
         powermgm_clear_event( POWERMGM_PMU_BUTTON | POWERMGM_BMA_DOUBLECLICK  | POWERMGM_BMA_TILT );
@@ -81,7 +99,7 @@ void powermgm_loop( void ) {
         lv_disp_trig_activity( NULL );
         powermgm_clear_event( POWERMGM_WAKEUP_REQUEST );
     }
-  
+
     // drive into
     if ( powermgm_get_event( POWERMGM_SILENCE_WAKEUP_REQUEST | POWERMGM_WAKEUP_REQUEST ) ) {
         powermgm_clear_event( POWERMGM_STANDBY | POWERMGM_SILENCE_WAKEUP | POWERMGM_WAKEUP );
@@ -92,6 +110,7 @@ void powermgm_loop( void ) {
 
         pmu_wakeup();
         bma_wakeup();
+
         display_wakeup( powermgm_get_event( POWERMGM_SILENCE_WAKEUP_REQUEST )?true:false );
 
         timesyncToSystem();
@@ -112,8 +131,8 @@ void powermgm_loop( void ) {
         else {
             powermgm_set_event( POWERMGM_WAKEUP );
         }
-    }        
-    else if( powermgm_get_event( POWERMGM_STANDBY_REQUEST ) ) {
+    }
+    else if( powermgm_get_event( POWERMGM_STANDBY_REQUEST ) && !alarm_in_progress ) {
         powermgm_clear_event( POWERMGM_STANDBY | POWERMGM_SILENCE_WAKEUP | POWERMGM_WAKEUP );
 
         if ( !display_get_block_return_maintile() ) {
@@ -146,6 +165,7 @@ void powermgm_loop( void ) {
             setCpuFrequencyMhz( 10 );
             gpio_wakeup_enable ( (gpio_num_t)AXP202_INT, GPIO_INTR_LOW_LEVEL );
             gpio_wakeup_enable ( (gpio_num_t)BMA423_INT1, GPIO_INTR_HIGH_LEVEL );
+            gpio_wakeup_enable ( (gpio_num_t)RTC_INT, GPIO_INTR_LOW_LEVEL );
             esp_sleep_enable_gpio_wakeup ();
             esp_light_sleep_start();
             // from here, the consumption is round about 2.5mA
@@ -159,6 +179,12 @@ void powermgm_loop( void ) {
         }
     }
     powermgm_clear_event( POWERMGM_SILENCE_WAKEUP_REQUEST | POWERMGM_WAKEUP_REQUEST | POWERMGM_STANDBY_REQUEST );
+
+    if( powermgm_get_event( POWERMGM_RTC_ALARM ) && powermgm_get_event( POWERMGM_WAKEUP ) ){
+        powermgm_clear_event( POWERMGM_RTC_ALARM );
+        alarm_in_progress = true;
+        main_tile_alarm_start();
+    }
 
     if ( powermgm_get_event( POWERMGM_STANDBY ) ) {
         vTaskDelay( 100 );

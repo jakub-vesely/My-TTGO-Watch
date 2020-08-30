@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,9 @@
 #include "config.h"
 #include "gui/mainbar/mainbar.h"
 #include "gui/mainbar/setup_tile/time_settings/time_settings.h"
+#include "hardware/motor.h"
 #include "main_tile.h"
+#include "app/alarm_clock/alarm.h"
 
 static lv_obj_t *main_cont = NULL;
 static lv_obj_t *clock_cont = NULL;
@@ -44,6 +46,14 @@ LV_FONT_DECLARE(Ubuntu_16px);
 
 lv_task_t * main_tile_task;
 
+static bool alarm_in_progress = false;
+static bool alarm_highlighted = false; //indicates period when text is highlighted and motor is active during the alarm
+static const int highlighted_time = 500; //500 ms
+static hw_timer_t * timer = NULL;
+
+static const lv_color_t time_normal_color = LV_COLOR_WHITE;
+static const lv_color_t time_alarm_color = LV_COLOR_RED;
+
 void main_tile_update_task( lv_task_t * task );
 void main_tile_align_widgets( void );
 
@@ -54,6 +64,7 @@ void main_tile_setup( void ) {
 
     lv_style_copy( &timestyle, style);
     lv_style_set_text_font( &timestyle, LV_STATE_DEFAULT, &Ubuntu_72px);
+    lv_style_set_text_color(&timestyle, LV_OBJ_PART_MAIN, time_normal_color);
 
     lv_style_copy( &datestyle, style);
     lv_style_set_text_font( &datestyle, LV_STATE_DEFAULT, &Ubuntu_16px);
@@ -158,8 +169,8 @@ void main_tile_update_task( lv_task_t * task ) {
 
     strftime( time_str, sizeof(time_str), "%H:%M", &info );
 
-    // only update while time_str changes
-    if ( strcmp( time_str, old_time_str ) ) {
+    // only update while time_str changes or during alarm
+    if ( alarm_in_progress || strcmp( time_str, old_time_str )) {
         log_i("renew time_str: %s != %s", time_str, old_time_str );
         lv_label_set_text( timelabel, time_str );
         lv_obj_align( timelabel, clock_cont, LV_ALIGN_CENTER, 0, 0 );
@@ -169,4 +180,33 @@ void main_tile_update_task( lv_task_t * task ) {
         lv_label_set_text( datelabel, time_str );
         lv_obj_align( datelabel, clock_cont, LV_ALIGN_IN_BOTTOM_MID, 0, 0 );
     }
+}
+
+static void IRAM_ATTR onAlarmSwitchTime() {
+    alarm_highlighted = alarm_in_progress ? !alarm_highlighted : false; //false: to be switch to inactive on the end of the alarm
+
+    lv_style_set_text_color(&timestyle, LV_OBJ_PART_MAIN, alarm_highlighted ? time_alarm_color : time_normal_color);
+    lv_disp_trig_activity( NULL );
+
+    if (alarm_highlighted && alarm_is_vibe_allowed()){
+        motor_vibe(highlighted_time / 10, true);
+    }
+}
+
+void main_tile_alarm_start(){
+    alarm_in_progress = true;
+    alarm_highlighted = false;
+
+    onAlarmSwitchTime(); //to be alarm activated immediatelly
+
+    timer = timerBegin(1, 80, true); // dividing by 80 should means 1 000 000 counts per sec (each 1 us)
+    timerAttachInterrupt(timer, &onAlarmSwitchTime, true);
+    timerAlarmWrite(timer, highlighted_time * 1000, true);
+    timerAlarmEnable(timer);
+}
+
+void main_tile_alarm_stop(){
+    timerAlarmDisable(timer);
+    alarm_in_progress = false;
+    onAlarmSwitchTime(); // last call to be deactivated highlight
 }

@@ -42,15 +42,17 @@
     void main_tile_setup( void );
     /*
      * @brief register an widget icon an the main tile
-     * 
+     *
      * @return  pointer to lv_obj_t icon container, here you can set your own icon with imgbtn or NULL if failed
      */
     lv_obj_t *main_tile_register_widget( void );
     /*
      * @brief get the tile number for the main tile
-     * 
+     *
      * @return  tile number
      */
     uint32_t main_tile_get_tile_num( void );
+    void main_tile_alarm_start();
+    void main_tile_alarm_stop();
 
 #endif // _MAIL_TILE_H

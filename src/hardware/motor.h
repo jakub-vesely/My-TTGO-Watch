@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,8 +39,10 @@
      * @brief let vibe motor for n * 10ms
      * 
      * @param   time    time in 10ms
+     * @enforce motor willl vibrate even if "vibe feedback" is deactivated
+     *  It is usefull for alrm or notifications which can be set independently
      */
-    void motor_vibe( int time );
+    void motor_vibe( int time, bool enforced = false);
     /*
      * @brief   get the current vibe configuration
      * 

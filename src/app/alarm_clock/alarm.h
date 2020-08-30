@@ -1,11 +1,8 @@
 /****************************************************************************
-              config.h
-
-    Tu May 22 21:23:51 2020
-    Copyright  2020  Dirk Brosswick
- *  Email: dirk.brosswick@googlemail.com
+ *   Copyright  2020  Jakub Vesely
+ *   Email: jakub_vesely@seznam.cz
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,18 +18,16 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef _CONFIG_H 
-    #define _CONFIG_H 
 
-    #define LILYGO_WATCH_2020_V1             //To use T-Watch2020, please uncomment this line
-    #define LILYGO_WATCH_LVGL                   //To use LVGL, you need to enable the macro LVGL
-    #define LILYGO_WATCH_HAS_PCF8563         //To be possible to use RTC
-    #define TWATCH_USE_PSRAM_ALLOC_LVGL
-    #include <LilyGoWatch.h>
+#pragma once
 
-    /*
-    * firmeware version string
-    */
-    #define __FIRMWARE__            "2020082902"
-
-#endif // _CONFIG_H
+void alarm_set(uint8_t hour, uint8_t minute);
+void alarm_set_enabled(bool enable);
+bool alarm_is_enabled();
+bool alarm_is_time();
+uint8_t alarm_get_hour();
+uint8_t alarm_get_minute();
+void alarm_set_vibe(bool _vibe);
+bool alarm_is_vibe_allowed();
+void alarm_load_data();
+void alarm_store_data();
