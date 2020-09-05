@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -62,11 +62,11 @@ void motor_setup( void ) {
     motor_vibe( 10 );
 }
 
-void motor_vibe( int time ) {
+void motor_vibe( int time, bool enforced ) {
     if ( motor_init == false )
         return;
 
-    if ( motor_get_vibe_config() ) {
+    if ( motor_get_vibe_config() || enforced) {
         portENTER_CRITICAL(&timerMux);
         motor_run_time_counter = time;
         portEXIT_CRITICAL(&timerMux);
@@ -107,7 +107,7 @@ void motor_save_config( void ) {
 }
 
 void motor_read_config( void ) {
-    if ( SPIFFS.exists( MOTOR_JSON_CONFIG_FILE ) ) {        
+    if ( SPIFFS.exists( MOTOR_JSON_CONFIG_FILE ) ) {
         fs::File file = SPIFFS.open( MOTOR_JSON_CONFIG_FILE, FILE_READ );
         if (!file) {
             log_e("Can't open file: %s!", MOTOR_JSON_CONFIG_FILE );
@@ -122,7 +122,7 @@ void motor_read_config( void ) {
             }
             else {
                 motor_config.vibe = doc["motor"].as<bool>();
-            }        
+            }
             doc.clear();
         }
         file.close();
@@ -143,7 +143,7 @@ void motor_read_config( void ) {
                 file.read( (uint8_t *)&motor_config, filesize );
                 file.close();
                 motor_save_config();
-                return;   
+                return;
             }
         file.close();
         }

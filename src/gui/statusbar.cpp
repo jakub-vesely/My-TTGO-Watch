@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ LV_IMG_DECLARE(bluetooth_64px);
 LV_IMG_DECLARE(foot_16px);
 LV_IMG_DECLARE(alarm_16px);
 
-lv_status_bar_t statusicon[ STATUSBAR_NUM ] = 
+lv_status_bar_t statusicon[ STATUSBAR_NUM ] =
 {
     { NULL, NULL, LV_ALIGN_IN_TOP_RIGHT, &statusbarstyle[ STATUSBAR_STYLE_WHITE ] },
     { NULL, LV_SYMBOL_BATTERY_FULL, LV_ALIGN_OUT_LEFT_MID, &statusbarstyle[ STATUSBAR_STYLE_WHITE ] },
@@ -202,7 +202,7 @@ void statusbar_setup( void )
 
     blectl_register_cb( BLECTL_CONNECT | BLECTL_DISCONNECT | BLECTL_PIN_AUTH , statusbar_blectl_event_cb );
     wifictl_register_cb( WIFICTL_CONNECT | WIFICTL_DISCONNECT | WIFICTL_OFF | WIFICTL_ON | WIFICTL_SCAN | WIFICTL_WPS_SUCCESS | WIFICTL_WPS_FAILED | WIFICTL_CONNECT_IP, statusbar_wifictl_event_cb );
-    rtcctl_register_cb( RTCCTL_ALARM_ENABLE | RTCCTL_ALARM_DISABLE, statusbar_rtcctl_event_cb );
+    rtcctl_register_cb( RTCCTL_ALARM_ENABLED | RTCCTL_ALARM_DISABLED, statusbar_rtcctl_event_cb );
 
     statusbar_task = lv_task_create( statusbar_update_task, 500, LV_TASK_PRIO_MID, NULL );
 }
@@ -214,9 +214,9 @@ void statusbar_update_task( lv_task_t * task ) {
 void statusbar_rtcctl_event_cb( EventBits_t event ) {
     log_i("statusbar rtcctl event %04x", event );
     switch( event ) {
-        case RTCCTL_ALARM_ENABLE:   statusbar_show_icon( STATUSBAR_ALARM );
+        case RTCCTL_ALARM_ENABLED:   statusbar_show_icon( STATUSBAR_ALARM );
                                     break;
-        case RTCCTL_ALARM_DISABLE:  statusbar_hide_icon( STATUSBAR_ALARM );
+        case RTCCTL_ALARM_DISABLED:  statusbar_hide_icon( STATUSBAR_ALARM );
                                     break;
     }
 }
@@ -273,7 +273,7 @@ void statusbar_wifictl_event_cb( EventBits_t event, char* msg ) {
 void statusbar_wifi_event_cb( lv_obj_t *wifi, lv_event_t event ) {
     if ( event == LV_EVENT_VALUE_CHANGED ) {
         switch ( lv_imgbtn_get_state( wifi ) ) {
-            case( LV_BTN_STATE_CHECKED_RELEASED ):  wifictl_off(); 
+            case( LV_BTN_STATE_CHECKED_RELEASED ):  wifictl_off();
                                                     break;
             case( LV_BTN_STATE_RELEASED ):          wifictl_on();
                                                     break;
@@ -356,7 +356,7 @@ void statusbar_event( lv_obj_t * statusbar, lv_event_t event ) {
         lv_style_set_bg_opa(&statusbarstyle[ STATUSBAR_STYLE_NORMAL ], LV_OBJ_PART_MAIN, LV_OPA_50);
         lv_obj_reset_style_list( statusbar, LV_OBJ_PART_MAIN );
         lv_obj_add_style( statusbar, LV_OBJ_PART_MAIN, &statusbarstyle[ STATUSBAR_STYLE_NORMAL ] );
-    } 
+    }
     else if ( event == LV_EVENT_RELEASED ) {
         lv_obj_set_height( statusbar, STATUSBAR_HEIGHT );
         lv_style_set_bg_opa(&statusbarstyle[ STATUSBAR_STYLE_NORMAL ], LV_OBJ_PART_MAIN, LV_OPA_20);
@@ -367,7 +367,7 @@ void statusbar_event( lv_obj_t * statusbar, lv_event_t event ) {
 
 void statusbar_update_stepcounter( int step ) {
     char stepcounter[12]="";
-    snprintf( stepcounter, sizeof( stepcounter ), "%d", step );    
+    snprintf( stepcounter, sizeof( stepcounter ), "%d", step );
     lv_label_set_text( statusbar_stepcounterlabel, (const char *)stepcounter );
 }
 
@@ -379,14 +379,14 @@ void statusbar_update_battery( int32_t percent, bool charging, bool plug ) {
     else {
         snprintf( level, sizeof( level ), "?" );
     }
-    lv_label_set_text( statusicon[  STATUSBAR_BATTERY_PERCENT ].icon, (const char *)level );   
+    lv_label_set_text( statusicon[  STATUSBAR_BATTERY_PERCENT ].icon, (const char *)level );
 
     if ( charging && plug ) {
         lv_img_set_src( statusicon[ STATUSBAR_BATTERY ].icon, LV_SYMBOL_CHARGE );
         statusbar_style_icon( STATUSBAR_BATTERY, STATUSBAR_STYLE_RED );
     }
-    else { 
-        if ( percent >= 75 ) { 
+    else {
+        if ( percent >= 75 ) {
             lv_img_set_src( statusicon[ STATUSBAR_BATTERY ].icon, LV_SYMBOL_BATTERY_FULL );
         } else if( percent >=50 && percent < 74) {
             lv_img_set_src( statusicon[ STATUSBAR_BATTERY ].icon, LV_SYMBOL_BATTERY_3 );
