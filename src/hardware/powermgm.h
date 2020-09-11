@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,29 +52,29 @@
     void powermgm_loop( void );
     /*
      * @brief trigger a power managemt event
-     * 
+     *
      * @param   bits    event to trigger, example: POWERMGM_WIFI_ON_REQUEST for switch an WiFi
      */
     void powermgm_set_event( EventBits_t bits );
     /*
      * @brief clear a power managemt event
-     * 
+     *
      * @param   bits    event to trigger, example: POWERMGM_WIFI_ON_REQUEST for switch an WiFi
      */
     void powermgm_clear_event( EventBits_t bits );
     /*
      * @brief get a power managemt event state
-     * 
+     *
      * @param   bits    event state, example: POWERMGM_STANDBY to evaluate if the system in standby
-     * 
+     *
      * @return  EventBits_t    event state
      */
     EventBits_t powermgm_get_event( EventBits_t bits );
         /*
      * @brief registers a callback function which is called on a corresponding event
-     * 
+     *
      * @param   event               possible values: POWERMGM_STANDBY, POWERMGM_SILENCE_WAKEUP, POWERMGM_WAKEUP and POWERMGM_RTC_ALARM
-     * @param   powermgm_event_cb   pointer to the callback function 
+     * @param   powermgm_event_cb   pointer to the callback function
      */
     void powermgm_register_cb( EventBits_t event, POWERMGM_CALLBACK_FUNC powermgm_event_cb );
 

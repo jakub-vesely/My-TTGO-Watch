@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include "sound.h"
 
 #include "gui/mainbar/mainbar.h"
+#include <app/alarm_clock/alarm_in_progress.h>
 
 EventGroupHandle_t powermgm_status = NULL;
 portMUX_TYPE powermgmMux = portMUX_INITIALIZER_UNLOCKED;
@@ -76,9 +77,6 @@ void powermgm_loop( void ) {
                 powermgm_set_event( POWERMGM_STANDBY_REQUEST );
             }
         }
-        if ( powermgm_get_event( POWERMGM_RTC_ALARM ) ) {
-            powermgm_send_event_cb( POWERMGM_RTC_ALARM );
-        }
         powermgm_clear_event( POWERMGM_PMU_BUTTON | POWERMGM_BMA_DOUBLECLICK  | POWERMGM_BMA_TILT | POWERMGM_RTC_ALARM );
     }
 
@@ -86,7 +84,7 @@ void powermgm_loop( void ) {
         lv_disp_trig_activity( NULL );
         powermgm_clear_event( POWERMGM_WAKEUP_REQUEST );
     }
-  
+
     // drive into
     if ( powermgm_get_event( POWERMGM_SILENCE_WAKEUP_REQUEST | POWERMGM_WAKEUP_REQUEST ) ) {
         powermgm_clear_event( POWERMGM_STANDBY | POWERMGM_SILENCE_WAKEUP | POWERMGM_WAKEUP );
@@ -125,12 +123,12 @@ void powermgm_loop( void ) {
         else {
             powermgm_set_event( POWERMGM_WAKEUP );
         }
-    }        
+    }
     else if( powermgm_get_event( POWERMGM_STANDBY_REQUEST ) ) {
-        
+
         //Save info to avoid buzz when standby after silent wake
         bool noBuzz = powermgm_get_event( POWERMGM_SILENCE_WAKEUP | POWERMGM_SILENCE_WAKEUP_REQUEST);
-        
+
         powermgm_clear_event( POWERMGM_STANDBY | POWERMGM_SILENCE_WAKEUP | POWERMGM_WAKEUP );
         powermgm_send_event_cb( POWERMGM_STANDBY );
 
@@ -242,7 +240,7 @@ void powermgm_send_event_cb( EventBits_t event ) {
     if ( powermgm_event_cb_entrys == 0 ) {
       return;
     }
-      
+
     for ( int entry = 0 ; entry < powermgm_event_cb_entrys ; entry++ ) {
         yield();
         if ( event & powermgm_event_cb_table[ entry ].event ) {

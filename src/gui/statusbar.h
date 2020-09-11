@@ -3,7 +3,7 @@
  *   Copyright  2020  Dirk Brosswick
  *   Email: dirk.brosswick@googlemail.com
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@
         STATUSBAR_ALARM,
         STATUSBAR_NUM
     } statusbar_icon_t;
-    
+
     typedef enum {
         STATUSBAR_STYLE_NORMAL,
         STATUSBAR_STYLE_WHITE,
@@ -63,19 +63,19 @@
     void statusbar_setup( void );
     /*
      * @brief hide an icon from statusbar
-     * 
+     *
      * @param icon  icon name
      */
     void statusbar_hide_icon( statusbar_icon_t icon );
     /*
      * @brief show an icon from statusbar
-     * 
+     *
      * @param icon  icon name
      */
     void statusbar_show_icon( statusbar_icon_t icon );
     /*
      * @brief hide an icon from statusbar
-     * 
+     *
      * @param icon  icon name
      * @param style style name
      */
@@ -86,7 +86,7 @@
     void statusbar_refresh( void );
     /*
      * @brief update battery icon and ther state
-     * 
+     *
      * @param   percent     displayed value in percent
      * @param   charging    true or false, true means charging
      * @param   plug        true or false, true means pluged
@@ -94,7 +94,7 @@
     void statusbar_update_battery( int32_t percent, bool charging, bool plug );
     /*
      * @brief   set wifistate and label
-     * 
+     *
      * @param   state       true or false, true means active
      * @param   wifiname    label to displayed text like "scan","connecting" and so on
      */
@@ -103,7 +103,7 @@
     void statusbar_bluetooth_set_state( bool state );
     /*
      * @brief hide the statusbar
-     * 
+     *
      * @param   hide    true or false, ture means statusbar is hide
      */
     void statusbar_hide( bool hide );
