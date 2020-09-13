@@ -24,28 +24,15 @@
 #include "config.h"
 #include <lvgl/src/lv_core/lv_obj.h>
 
-lv_obj_t * wf_add_container(
-    lv_obj_t *parent, lv_obj_t * alignment_base, lv_align_t alignment, int offset_x, int offset_y, int width, int height
-);
-
-lv_obj_t * wf_add_label(
-    lv_obj_t *parent, char const * text, lv_obj_t * alignment_base, lv_align_t alignment, int offset_x, int offset_y
-);
-
-lv_obj_t * wf_add_roller(
-    lv_obj_t *parent, char const * data, lv_roller_mode_t mode, lv_obj_t * alignment_base, lv_align_t alignment
-);
-
-lv_obj_t * wf_add_labeled_switch(
-    lv_obj_t *parent, char const * text, lv_obj_t * alignment_base, lv_align_t alignment, int offset_x, int offset_y, lv_obj_t ** ret_switch_obj
-);
-
-lv_obj_t * wf_add_image_button(
-    lv_obj_t *parent, lv_img_dsc_t const &image, lv_obj_t * alignment_base, lv_align_t alignment, int offset_x, int offset_y, lv_event_cb_t event_cb
-);
-
+lv_obj_t * wf_add_container(lv_obj_t *parent, lv_layout_t layout, lv_fit_t hor_fit=LV_FIT_TIGHT, lv_fit_t ver_fit=LV_FIT_TIGHT, bool add_padding=false);
+lv_obj_t * wf_add_tile_container(lv_obj_t *parent, lv_layout_t layout);
+lv_obj_t * wf_add_tile_footer_container(lv_obj_t *tile, lv_layout_t layout);
+lv_obj_t * wf_add_label(lv_obj_t *parent, char const * text);
+lv_obj_t * wf_add_roller(lv_obj_t *parent, char const * data, lv_roller_mode_t mode, int row_count);
+lv_obj_t * wf_add_switch(lv_obj_t *parent);
+lv_obj_t * wf_add_labeled_switch(lv_obj_t *parent, char const * text, lv_obj_t ** ret_switch_obj);
+lv_obj_t * wf_add_image_button(lv_obj_t *parent, lv_img_dsc_t const &image, lv_event_cb_t event_cb);
+lv_obj_t * wf_add_button(lv_obj_t *parent, char const * label, int width, int height, lv_event_cb_t event_cb);
 lv_obj_t * wf_add_settings_header(lv_obj_t *parent, char const * title, lv_obj_t ** ret_back_btn);
-lv_obj_t * wf_add_image(
-    lv_obj_t *parent, lv_img_dsc_t const &image, lv_obj_t * alignment_base, lv_align_t alignment, int offset_x, int offset_y
-);
+lv_obj_t * wf_add_image(lv_obj_t *parent, lv_img_dsc_t const &image);
 
