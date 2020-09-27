@@ -25,6 +25,7 @@
 
 lv_style_t *ws_get_container_style();
 lv_style_t *ws_get_setup_tile_style();
+lv_style_t *ws_get_button_style();
 lv_style_t *ws_get_img_button_style();
 lv_style_t *ws_get_label_style();
 lv_style_t *ws_get_switch_style();

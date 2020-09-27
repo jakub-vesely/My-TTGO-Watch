@@ -30,6 +30,16 @@
     #define RTCCTL_ALARM_DISABLED    _BV(2)
     #define RTCCTL_ALARM_ENABLED     _BV(3)
 
+    #define DAYS_IN_WEEK 7
+    #define RTCCTL_ALARM_NOT_SET -1
+
+    typedef struct {
+        bool enabled;
+        uint8_t hour;
+        uint8_t minute;
+        bool week_days[DAYS_IN_WEEK]; //starting from sunday to be aligned with tm
+    } rtcctl_alarm_t;
+
     /**
      * @brief setup rtc controller routine
      */
@@ -48,42 +58,28 @@
      * @return  true if success, false if failed
      */
     bool rtcctl_register_cb( EventBits_t event, CALLBACK_FUNC callback_func, const char *id );
-    /**
-     * @brief set an alarm time
-     *
-     * @param   hour    hour to set
-     * @param   minute  minute to set
-     */
-    void rtcctl_set_alarm_term( uint8_t hour, uint8_t minute );
-    /**
-     * @brief   enable alarm
-     */
-    void rtcctl_enable_alarm( void );
-    /**
-     * @brief   disable alarm
-     */
-    void rtcctl_disable_alarm( void );
-    /**
-     * @brief   check rtc time
-     *
-     * @return  true if equal, otherwise false
-     */
-    bool rtcctl_is_alarm_time();
-    /**
-     * @brief   get the current alarm state
-     * 
-     * @return  true if enable, false is disable
-     */
-    bool rtcctl_is_alarm_enabled( void );
+    
+    /*
+    * @brief set an alarm
+    *
+    * @param   pointer to alarm_data struct
+    *
+    */
+    void rtcctl_set_alarm( rtcctl_alarm_t *alarm_data );
 
     /*
-     * @brief   returns currently set alarm hour - a value can be set when alarm is currently disabled as well
-     */
-    uint8_t rtcctl_get_alarm_hour();
+        * @brief   returns pointer to data coresponding to alarm
+        */
+    rtcctl_alarm_t *rtcctl_get_alarm_data();
 
-    /*
-     * @brief   returns currently set alarm minute - a value can be set when alarm is currently disabled as well
-     */
-    uint8_t rtcctl_get_alarm_minute();
+    /**
+     * @brief find and set term for next alarm 
+    */
+    void rtcctl_set_next_alarm();
+
+    /**
+     * @brief if alarm is set, returns day of week number where sunday=0, othervise is returned DAY_NOT_SET 
+    */
+    int rtcctl_get_next_alarm_week_day();
 
 #endif // _RTCCTL_H
